@@ -1,4 +1,4 @@
-# Market/Social Media Trend Analyst Agent
+# Self-Correction Coding Assistant Agent (Track 5+6)
 
 ### Machine Learning @ Berkeley · Spring 2026 · Google GKE
 
@@ -7,17 +7,20 @@ Timeline: March 2, 2026 - May 4, 2026 (Spring Break: March 23-27, 2026)
 
 ## 👥 Contributors
 
-- `Alon Ragoler` 🎓
-- `Annie Lauren Yun` 🎓
+- `Cici Cai` 🎓
+- `Skyla Ma` 🎓
 - `Robin Holzinger` 🎓
 
 ## 📘 Overview
 
-Build a long-running agent on GKE that monitors social/news feeds and produces periodic sentiment and trend reports.
+Build a long-running coding agent on GKE that can iteratively fix failing Python code/tests, while prioritizing secure tool execution and policy guardrails.
 
 ## 🎯 Key Deliverables
 
 - Stable single-agent runtime on GKE
+- LangGraph-first implementation path (framework selection finalized in Week 2)
+- Secure tool execution in isolated ephemeral sandboxes on GKE (Track 5)
+- Network policy guardrails + auditability for tool use (Track 6)
 - Demo-ready workflow (10-15 minute reproducible demo)
 - Final architecture diagram and concise findings report
 
@@ -31,7 +34,7 @@ Build a long-running agent on GKE that monitors social/news feeds and produces p
 
    ```bash
    git clone https://github.com/robinholzi/sp26-google-gke-social-media.git
-   cd sp26-google-gke-social-media
+   cd <repo-directory>
    ```
 
 2. Install [pixi](https://pixi.sh) if you haven't already:
@@ -123,6 +126,32 @@ Read logs:
 ```bash
 make gke-dummy-logs
 ```
+
+## 🧪 Track 5+6 Focus
+
+Track 5: Secure Tool Execution & Isolation (Agent Sandbox)
+
+- Run untrusted AI-generated tool code in ephemeral, isolated environments
+- Enforce secure runtime defaults (`gVisor` + default-deny network policy)
+- Evaluate reliability and developer-velocity impact
+
+Track 6: (Network)Policy Guardrails & Auditability
+
+- Add enforceable allow/deny controls for commands, images, and outbound destinations
+- Capture end-to-end audit logs for tool execution decisions
+- Measure safety controls versus task completion and latency
+
+## 🗓️ Timeline (Proposal)
+
+1. Week of March 2, 2026: scope, metrics, and GKE access setup
+2. Week of March 9, 2026: framework selection + local validation
+3. Week of March 16, 2026: first stable GKE deployment + logging
+4. Week of March 30, 2026: core loop + retries + latency baseline
+5. Week of April 6, 2026: quality checks + framework comparison
+6. Week of April 13, 2026: observability dashboard + throughput smoke test + security checklist
+7. Week of April 20, 2026: runtime hardening + failure drills
+8. Week of April 27, 2026: rehearsals + report delivery
+9. Week of May 4, 2026: demo day 🎉
 
 ## 📁 Directory Structure
 

@@ -1,3 +1,11 @@
-# Scratch Area
+# Development Scratch Area
 
-This is a scratch area for development, rough notes and jupyter notebooks.
+Use this folder for local notes, throwaway scripts, and notebooks that support Track 5+6 work.
+
+Examples:
+
+- sandbox claim lifecycle prototyping
+- policy guardrail test scripts
+- audit-trace parsing and analysis notes
+
+Do not place production manifests or reusable library code here.

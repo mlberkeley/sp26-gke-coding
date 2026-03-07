@@ -4,6 +4,12 @@ Terraform for GCP/GKE lives in this directory.
 
 Use Make targets only; GCP auth/setup is automated.
 
+For Track Group 5+6, infra priorities are:
+
+- stable coding-agent workload execution on GKE
+- secure sandboxed tool execution with strong runtime/network isolation (Track 5)
+- enforceable policy guardrails and auditability pipelines (Track 6)
+
 Secrets workflow uses SOPS:
 
 1. Non-sensitive Terraform config goes in `cloud/config.auto.tfvars` (copy from `cloud/config.auto.tfvars.example`).
@@ -43,3 +49,10 @@ Dummy workload starter on GKE:
 
 For this starter, plain manifests are intentional. Move to Helm once you need environment-specific values, chart versioning, or multiple deployable workloads.
 If `gke-gcloud-auth-plugin` is missing, Make falls back to short-lived access-token auth for kubectl.
+
+Track 5+6 migration guidance:
+
+1. Replace the dummy job command with the coding-agent entrypoint.
+2. Add sandbox components/templates for isolated tool execution.
+3. Add default-deny and least-privilege policy controls for agent tool traffic.
+4. Add audit-log collection and drill scripts to verify policy enforcement outcomes.

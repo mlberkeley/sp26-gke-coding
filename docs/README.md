@@ -1,15 +1,17 @@
 # Documentation
 
-This directory serves as the documentation for this project.
+This folder contains the written artifacts for Track Group 5+6
+(`Cici Cai`, `Skyla Ma`) in the Google x ML@Berkeley Spring 2026 project.
 
-Please put any diagrams, notes, and other documentation here.
+## Current docs
 
-e.g. you can use Mermaid to create diagrams like this:
+- `track-5-6-project-brief.md`: scope, milestones, metrics, and deliverables
 
-```mermaid
-graph TD
-    A[Start] --> B{Is it working?}
-    B -- Yes --> C[Great!]
-    B -- No --> D[Debug it!]
-    D --> B
-```
+## Planned docs
+
+- Architecture diagram for the coding agent runtime on GKE
+- Sandbox integration validation notes for Track 5
+- Policy guardrail and auditability report for Track 6
+- Demo runbook (setup + sandbox flow + policy enforcement walkthrough)
+
+Add working notes, results, and figures here as the project progresses.

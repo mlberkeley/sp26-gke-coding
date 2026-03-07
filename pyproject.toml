@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sp26-google-gke-social-media"
+version = "0.0.0"
+readme = "README.md"
+license = "MIT"
+authors = []
+keywords = []
+classifiers = []
+requires-python = ">=3.12, <3.14"
+dependencies = []
+
+[project.urls]
+repository = "https://github.com/robinholzi/sp26-google-gke-social-media"
+
+[tool.setuptools.packages.find]
+include = ["sp26_gke*"]
+namespaces = false
+
+[tool.ruff]
+line-length = 88
+src = ["sp26_gke", "tests"]
+
+[tool.ruff.lint]
+ignore = ["E501", "N803", "N806", "E722"]
+select = ["F", "E", "W", "I", "N", "UP"]
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["ANN", "ARG", "D", "E402", "PTH", "S101"]
+
+[tool.docformatter]
+pre-summary-newline = true
+black = true
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = false
+explicit_package_bases = true
+no_implicit_optional = true
+plugins = []
+python_version = "3.12"
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+  "torchvision.*",
+  "stable_baselines3.*",
+  "pettingzoo.*",
+  "gymnasium.*",
+  "pandas",
+  "pandas",
+  "requests",
+  "requests.*",
+  "scipy",
+  "scipy.*",
+  "shapely",
+  "shapely.*",
+  "yaml",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-p no:warnings", "--import-mode=importlib"]
+xfail_strict = true
+log_cli_level = "warn"
+pythonpath = "sp26_gke"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["sp26_gke"]
+
+[tool.coverage.report]
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "except ImportError",
+]

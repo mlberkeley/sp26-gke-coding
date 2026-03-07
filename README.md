@@ -26,14 +26,14 @@ Build a long-running coding agent on GKE that can iteratively fix failing Python
 
 ## 🌐 Repository
 
-🔗 [github.com/robinholzi/sp26-google-gke-social-media](https://github.com/robinholzi/sp26-google-gke-social-media)
+🔗 [github.com/robinholzi/sp26-google-gke-coding-agent](https://github.com/robinholzi/sp26-google-gke-coding-agent)
 
 ## 🚀 Setup
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/robinholzi/sp26-google-gke-social-media.git
+   git clone https://github.com/robinholzi/sp26-google-gke-coding-agent.git
    cd <repo-directory>
    ```
 

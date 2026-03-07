@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: gke-dummy-workflow
+  namespace: __NAMESPACE__
+  labels:
+    app: gke-dummy-workflow
+spec:
+  schedule: "*/30 * * * *"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 900
+      template:
+        metadata:
+          labels:
+            app: gke-dummy-workflow
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: dummy-workflow
+              image: __IMAGE__
+              imagePullPolicy: Always
+              env:
+                - name: DUMMY_LOOP_COUNT
+                  value: "5"
+                - name: DUMMY_SLEEP_SECONDS
+                  value: "3"

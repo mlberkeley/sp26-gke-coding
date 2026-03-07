@@ -1,7 +1,7 @@
 [workspace]
 name = "sp26-google-gke-social-media"
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64"]
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64"]
 
 [tasks]
 postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-check -v -e ."
@@ -12,6 +12,7 @@ geodata-download-census = "python -m sp26_gke.geodata.cli download-census"
 geodata-preprocess = "python -m sp26_gke.geodata.cli preprocess"
 
 geodata-plot = "python sp26_gke/plotting/geodata/generate_figures.py"
+gke-dummy-job = "python -m sp26_gke.workflows.gke_dummy_job"
 
 [dependencies]
 python = ">=3.12"
@@ -71,8 +72,16 @@ typos = "*"
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
+[feature.infra.dependencies]
+google-cloud-sdk = "*"
+terraform = "*"
+go-sops = "*"
+age = "*"
+kubernetes-client = "*"
+
 [environments]
 default = { features = [
+  "infra",
   "py_utilities",
   "py_data_processing",
   "py_ml",
@@ -82,3 +91,4 @@ default = { features = [
   "py_lint",
 ] }
 lint = { features = ["py_lint"], no-default-feature = true }
+infra = { features = ["infra"], no-default-feature = true }

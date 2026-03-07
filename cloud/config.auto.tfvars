@@ -1,0 +1,11 @@
+project_id        = "cogent-nimbus-489503-f6"
+region            = "us-central1"
+zone              = "us-central1-a"
+cluster_name      = "social-media-agent"
+network_name      = "social-media-vpc"
+subnetwork_name   = "social-media-subnet"
+subnetwork_cidr   = "10.10.0.0/16"
+node_count        = 1
+node_machine_type = "e2-standard-2"
+node_disk_type    = "pd-standard"
+node_disk_size_gb = 30

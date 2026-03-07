@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gke-dummy-workflow-once
+  namespace: __NAMESPACE__
+  labels:
+    app: gke-dummy-workflow
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: gke-dummy-workflow
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: dummy-workflow
+          image: __IMAGE__
+          imagePullPolicy: Always
+          env:
+            - name: DUMMY_LOOP_COUNT
+              value: "5"
+            - name: DUMMY_SLEEP_SECONDS
+              value: "3"

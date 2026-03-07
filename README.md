@@ -53,6 +53,8 @@ Build a long-running agent on GKE that monitors social/news feeds and produces p
    pixi run pre-commit run --all
    ```
 
+   The default Pixi environment now includes infra tooling: `gcloud`, `terraform`, `sops`, and `age`.
+
 4. Run the test suite:
 
    ```bash
@@ -66,11 +68,68 @@ Build a long-running agent on GKE that monitors social/news feeds and produces p
    direnv allow
    ```
 
+## ☁️ Terraform (GCP + SOPS)
+
+Terraform is configured in `cloud/` for GCP + GKE. Secrets are managed in a SOPS file (`secrets/secrets.sops.yaml`).
+
+`make tf-plan` / `make tf-apply` now auto-runs GCP auth and project setup (login + ADC + quota project + project config + required APIs) when needed.
+
+```bash
+cp cloud/config.auto.tfvars.example cloud/config.auto.tfvars
+# set project_id and other non-sensitive values in cloud/config.auto.tfvars
+
+make tf-secrets-template
+# fill sensitive values in secrets/secrets.sops.yaml
+make gcp-kms-bootstrap
+make tf-secrets-encrypt-kms
+make tf-plan
+make tf-apply  # This creates a GKE cluster (can take ~10 min)
+
+# SOPS / Secrets workflow:
+make tf-secrets-decrypt
+make tf-secrets-edit
+make tf-secrets-encrypt-kms
+```
+
+Headless login (no browser auto-open):
+
+```bash
+make GCLOUD_LOGIN_FLAGS=--no-launch-browser tf-plan
+```
+
+## 🤖 Dummy GKE Workflow Starter
+
+This repo includes a minimal Python workflow starter that runs on GKE:
+
+- Python entrypoint: `sp26_gke.workflows.gke_dummy_job`
+- Pixi task: `pixi run gke-dummy-job`
+- Dockerfile: `cloud/docker/gke-dummy.Dockerfile`
+- Kubernetes manifests: `cloud/k8s/dummy-workflow/`
+
+Deploy flow:
+
+```bash
+make gke-dummy-build
+make gke-dummy-push
+make gke-dummy-run-once      # one-off Job
+# or:
+make gke-dummy-schedule      # CronJob (every 30 min)
+```
+
+`make gke-dummy-push` now auto-runs gcloud auth checks, configures Docker for Artifact Registry, and creates the `gke-workflows` repository if missing.
+
+Read logs:
+
+```bash
+make gke-dummy-logs
+```
+
 ## 📁 Directory Structure
 
 - `cloud/`: GKE and infrastructure assets
 - `dev/`: local development helpers
 - `docs/`: project documentation
+- `secrets/`: SOPS-managed sensitive values only
 - `sp26_gke`: main agent codebase
 - `tests/`: test suite
 

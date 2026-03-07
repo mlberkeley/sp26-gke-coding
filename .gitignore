@@ -378,6 +378,14 @@ $RECYCLE.BIN/
 
 # [Manual] -----------------------------------------------------------------------------
 
-
+cloud/.terraform/
+cloud/.terraform.lock.hcl
+cloud/terraform.tfstate
+cloud/terraform.tfstate.backup
+cloud/tfplan
+secrets/.secrets.auto.tfvars.json
+secrets/.sops.yaml
+.gcloud/
+.gcloud-admin/
 
 # --------------------------------------------------------------------------------------

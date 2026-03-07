@@ -1,9 +1,9 @@
 project_id        = "cogent-nimbus-489503-f6"
 region            = "us-central1"
 zone              = "us-central1-a"
-cluster_name      = "social-media-agent"
-network_name      = "social-media-vpc"
-subnetwork_name   = "social-media-subnet"
+cluster_name      = "coding-agent"
+network_name      = "coding-agent-vpc"
+subnetwork_name   = "coding-agent-subnet"
 subnetwork_cidr   = "10.10.0.0/16"
 node_count        = 1
 node_machine_type = "e2-standard-2"

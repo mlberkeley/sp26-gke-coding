@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: coding-agent
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+        - name: agent
+          image: us-central1-docker.pkg.dev/cogent-nimbus-489503-f6/gke-workflows/coding-agent:latest
+          env:
+            - name: GOOGLE_API_KEY
+              value: AIzaSyC6_7_-NjjxRO8LK5HY186KbmiJiyIUJXE
+      restartPolicy: Never

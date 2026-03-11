@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sandbox-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: sandbox
+          image: gcr.io/cogent-nimbus-489503-f6/sandbox:latest
+          command: ["python3", "/app/sp26_gke/workflows/gke_agent_job.py"]
+      restartPolicy: Never

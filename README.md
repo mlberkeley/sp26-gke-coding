@@ -9,7 +9,7 @@ Timeline: March 2, 2026 - May 4, 2026 (Spring Break: March 23-27, 2026)
 
 - `Cici Cai` 🎓
 - `Skyla Ma` 🎓
-- `Robin Holzinger` 🎓
+- `Robin Holzinger` (PM) 🎓
 
 ## 📘 Overview
 

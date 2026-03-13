@@ -10,7 +10,7 @@ license = "MIT"
 authors = []
 keywords = []
 classifiers = []
-requires-python = ">=3.12, <3.14"
+requires-python = ">=3.11, <3.14"
 dependencies = []
 
 [project.urls]
@@ -46,7 +46,7 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 no_implicit_optional = true
 plugins = []
-python_version = "3.12"
+python_version = "3.11"
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]

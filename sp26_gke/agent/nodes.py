@@ -4,21 +4,15 @@ from pathlib import Path
 from langchain_core.messages import AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END
-
+from sp26_gke.sandbox.sandbox_runner import run_in_sandbox
 from .state import AgentState
 
-test_path = Path("tests/test_buggy_script.py")
-buggy_file = Path("tests/buggy_script.py")
+test_path = Path("/workspace/test_buggy_script.py")
+buggy_file = Path("/workspace/buggy_script.py")
 
 llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0)
 resp = llm.invoke("print('hello world')")
 print(resp)
-
-
-def run_in_sandbox():
-    result = subprocess.run(["python3", str(test_path)], capture_output=True, text=True)
-    return result.stdout + "\n" + (result.stderr or "")
-
 
 def run_tests_node(state: AgentState):
     print("run_tests_node")
@@ -69,7 +63,7 @@ def apply_fix_node(state: AgentState):
                 suggestion = block["text"]
                 break
 
-    print(f"DEBUG: Extracted suggestion: {repr(suggestion)}")
+    # print(f"DEBUG: Extracted suggestion: {repr(suggestion)}")
 
     if not suggestion:
         print("WARNING: Suggestion is empty!")
@@ -79,8 +73,13 @@ def apply_fix_node(state: AgentState):
 
     clean_code = str(suggestion).replace("```python", "").replace("```", "").strip()
 
-    with open("tests/buggy_script.py", "w") as f:
+    with open(buggy_file, "w") as f:
         f.write(clean_code)
+
+    with open(buggy_file, "r") as f:
+        print("===== FIXED CODE =====")
+        print(f.read())
+        print("======================")
 
     return {
         "messages": [AIMessage(content="SYSTEM: Applied LLM fix to file.")],

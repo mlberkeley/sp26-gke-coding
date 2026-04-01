@@ -28,6 +28,8 @@ spec:
                 secretKeyRef:
                   name: google-api-key
                   key: GOOGLE_API_KEY
+            - name: KUBECONFIG
+              value: /kubeconfig/config
 
           securityContext:
             runAsNonRoot: true
@@ -43,9 +45,15 @@ spec:
               memory: "512Mi"
 
           volumeMounts:
-            - name: workspace
-              mountPath: /workspace
+          - name: workspace
+            mountPath: /workspace
+          - name: kubeconfig
+            mountPath: /kubeconfig
+            readOnly: true
 
       volumes:
         - name: workspace
           emptyDir: {}
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig-cm

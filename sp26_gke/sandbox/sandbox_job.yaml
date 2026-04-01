@@ -5,6 +5,7 @@ metadata:
 spec:
   template:
     spec:
+      runtimeClassName: gvisor
       containers:
         - name: sandbox
           image: gcr.io/cogent-nimbus-489503-f6/sandbox:latest

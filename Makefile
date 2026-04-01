@@ -33,6 +33,15 @@ GKE_DUMMY_DOCKERFILE ?= cloud/docker/gke-dummy.Dockerfile
 GKE_DUMMY_DOCKER_PLATFORM ?= linux/amd64
 GKE_DUMMY_MANIFEST_DIR ?= cloud/k8s/dummy-workflow
 
+CODING_AR_REGION ?= us-central1
+CODING_AR_REPOSITORY ?= gke-workflows
+CODING_IMAGE ?= $(CODING_AR_REGION)-docker.pkg.dev/$(PROJECT_ID)/$(CODING_AR_REPOSITORY)/sandbox:latest
+CODING_DOCKERFILE ?= cloud/docker/gke-agent.Dockerfile
+CODING_DOCKER_PLATFORM ?= linux/amd64
+CODING_MANIFEST_DIR ?= cloud/k8s/coding-agent
+GKE_AGENT_JOB_NAME ?= coding-agent
+GKE_AGENT_MANIFEST ?= $(CODING_MANIFEST_DIR)/job.yaml
+
 GCLOUD_CONFIG_ABS := $(abspath $(GCLOUD_CONFIG_DIR))
 ADMIN_GCLOUD_CONFIG_ABS := $(abspath $(ADMIN_GCLOUD_CONFIG_DIR))
 ADC_FILE := $(GCLOUD_CONFIG_ABS)/application_default_credentials.json
@@ -244,6 +253,37 @@ gke-dummy-logs: gke-auth
 		echo "Logs are not available yet (pod likely still creating). Showing pod status/events:"; \
 		$(KUBECTL) -n "$(GKE_NAMESPACE)" get pods -l app=gke-dummy-workflow -o wide; \
 		POD="$$( $(KUBECTL) -n "$(GKE_NAMESPACE)" get pods -l app=gke-dummy-workflow -o jsonpath='{.items[0].metadata.name}' 2>/dev/null )"; \
+		if [ -n "$$POD" ]; then \
+			echo ""; \
+			$(KUBECTL) -n "$(GKE_NAMESPACE)" describe pod "$$POD" | sed -n '/Events:/,$$p'; \
+		fi; \
+		true \
+	)
+
+# ------------------------------------------------------------------------------------ #
+#                                         Coding Agent                                 #
+# ------------------------------------------------------------------------------------ #
+
+gke-agent-build:
+	docker buildx build --platform "$(CODING_DOCKER_PLATFORM)" -f "$(CODING_DOCKERFILE)" -t "$(CODING_IMAGE)" --load .
+
+gke-agent-push: gke-agent-build gcp-docker-auth gcp-artifact-registry-repo
+	@REGISTRY_HOST="$$(echo "$(CODING_IMAGE)" | cut -d/ -f1)"; \
+	$(GCLOUD) auth print-access-token | docker login -u oauth2accesstoken --password-stdin "https://$$REGISTRY_HOST"; \
+	CLOUDSDK_CONFIG=$(GCLOUD_CONFIG_ABS) docker push "$(CODING_IMAGE)"
+
+gke-agent-run-once: gke-namespace
+	@$(KUBECTL) -n "$(GKE_NAMESPACE)" delete job "$(GKE_AGENT_JOB_NAME)" --ignore-not-found
+	@$(KUBECTL) -n "$(GKE_NAMESPACE)" apply -f "$(GKE_AGENT_MANIFEST)"
+
+gke-agent-delete: gke-auth
+	@$(KUBECTL) -n "$(GKE_NAMESPACE)" delete job "$(GKE_AGENT_JOB_NAME)" --ignore-not-found
+
+gke-agent-logs: gke-auth
+	@$(KUBECTL) -n "$(GKE_NAMESPACE)" logs -f job/"$(GKE_AGENT_JOB_NAME)" || ( \
+		echo "Logs not available yet. Showing pod status:"; \
+		$(KUBECTL) -n "$(GKE_NAMESPACE)" get pods -l job-name="$(GKE_AGENT_JOB_NAME)" -o wide; \
+		POD="$$( $(KUBECTL) -n "$(GKE_NAMESPACE)" get pods -l job-name="$(GKE_AGENT_JOB_NAME)" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null )"; \
 		if [ -n "$$POD" ]; then \
 			echo ""; \
 			$(KUBECTL) -n "$(GKE_NAMESPACE)" describe pod "$$POD" | sed -n '/Events:/,$$p'; \

@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-test_path = Path("/app/tests/test_buggy_script.py")
+test_path = Path("/app/sp26_gke/workspace/test_buggy_script.py")
 
 
 def run_in_sandbox():

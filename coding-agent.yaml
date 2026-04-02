@@ -11,16 +11,16 @@ spec:
       restartPolicy: Never
       containers:
         - name: agent
-          image: us-central1-docker.pkg.dev/cogent-nimbus-489503-f6/gke-workflows/coding-agent:latest
+          image: us-central1-docker.pkg.dev/intrepid-stage-489905-m7/gke-workflows/coding-agent:latest
 
           command:
-          - sh
-          - -c
-          - |
-            mkdir -p /workspace
-            cp /app/sp26_gke/tests/buggy_script.py /workspace/
-            cp /app/sp26_gke/tests/test_buggy_script.py /workspace/
-            python /app/sp26_gke/workflows/gke_agent_job.py
+            - sh
+            - -c
+            - |
+              mkdir -p /workspace
+              cp /app/sp26_gke/tests/buggy_script.py /workspace/
+              cp /app/sp26_gke/tests/test_buggy_script.py /workspace/
+              python /app/sp26_gke/workflows/gke_agent_job.py
 
           env:
             - name: GOOGLE_API_KEY
@@ -45,11 +45,11 @@ spec:
               memory: "512Mi"
 
           volumeMounts:
-          - name: workspace
-            mountPath: /workspace
-          - name: kubeconfig
-            mountPath: /kubeconfig
-            readOnly: true
+            - name: workspace
+              mountPath: /workspace
+            - name: kubeconfig
+              mountPath: /kubeconfig
+              readOnly: true
 
       volumes:
         - name: workspace

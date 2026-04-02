@@ -12,7 +12,7 @@ TF_SECRETS_JSON := $(SECRETS_DIR)/.secrets.auto.tfvars.json
 export
 
 GCLOUD_LOGIN_FLAGS ?=
-PROJECT_ID ?= cogent-nimbus-489503-f6
+PROJECT_ID ?= intrepid-stage-489905-m7
 SOPS_GCP_KMS ?=
 SOPS_AGE_RECIPIENT ?=
 SOPS_KMS_LOCATION ?= global
@@ -33,6 +33,13 @@ GKE_DUMMY_DOCKERFILE ?= cloud/docker/gke-dummy.Dockerfile
 GKE_DUMMY_DOCKER_PLATFORM ?= linux/amd64
 GKE_DUMMY_MANIFEST_DIR ?= cloud/k8s/dummy-workflow
 
+CODING_AGENT_AR_REGION ?= us-central1
+CODING_AGENT_AR_REPOSITORY ?= gke-workflows
+CODING_AGENT_IMAGE ?= $(CODING_AGENT_AR_REGION)-docker.pkg.dev/$(PROJECT_ID)/$(CODING_AGENT_AR_REPOSITORY)/coding-agent:latest
+CODING_AGENT_DOCKERFILE ?= Dockerfile
+CODING_AGENT_DOCKER_PLATFORM ?= linux/amd64
+CODING_AGENT_MANIFEST ?= coding-agent.yaml
+
 GCLOUD_CONFIG_ABS := $(abspath $(GCLOUD_CONFIG_DIR))
 ADMIN_GCLOUD_CONFIG_ABS := $(abspath $(ADMIN_GCLOUD_CONFIG_DIR))
 ADC_FILE := $(GCLOUD_CONFIG_ABS)/application_default_credentials.json
@@ -50,6 +57,7 @@ KUBECTL := CLOUDSDK_CONFIG=$(GCLOUD_CONFIG_ABS) pixi run kubectl
 	gcp-auth gcp-project gcp-adc-quota gcp-enable-services gcp-kms-bootstrap gcp-init gcp-docker-auth gcp-artifact-registry-repo \
 	gcp-admin-auth gcp-admin-project gcp-admin-kms-create-keyring gcp-admin-kms-create-key gcp-admin-kms-grant-user gcp-admin-kms-setup \
 	gke-auth gke-namespace gke-dummy-build gke-dummy-push gke-dummy-run-once gke-dummy-schedule gke-dummy-delete gke-dummy-logs \
+	agent-build agent-push agent-deploy agent-logs \
 	logout
 
 # ------------------------------------------------------------------------------------ #
@@ -212,7 +220,9 @@ gke-auth: gcp-init
 		CTX="gke_$(PROJECT_ID)_$(GKE_CLUSTER_REGION)_$(GKE_CLUSTER_NAME)"; \
 		USER_NAME="token-user-$(GKE_CLUSTER_NAME)"; \
 		TOKEN="$$( $(GCLOUD) auth print-access-token )"; \
-		$(KUBECTL) config set-cluster "$$CTX" --server="https://$$ENDPOINT" --certificate-authority-data="$$CA_CERT" >/dev/null; \
+		CA_CERT_FILE="$$(mktemp)"; echo "$$CA_CERT" | base64 --decode > "$$CA_CERT_FILE"; \
+		$(KUBECTL) config set-cluster "$$CTX" --server="https://$$ENDPOINT" --certificate-authority="$$CA_CERT_FILE" --embed-certs=true >/dev/null; \
+		rm -f "$$CA_CERT_FILE"; \
 		$(KUBECTL) config set-credentials "$$USER_NAME" --token="$$TOKEN" >/dev/null; \
 		$(KUBECTL) config set-context "$$CTX" --cluster="$$CTX" --user="$$USER_NAME" >/dev/null; \
 		$(KUBECTL) config use-context "$$CTX" >/dev/null; \
@@ -249,6 +259,35 @@ gke-dummy-logs: gke-auth
 			$(KUBECTL) -n "$(GKE_NAMESPACE)" describe pod "$$POD" | sed -n '/Events:/,$$p'; \
 		fi; \
 		true \
+	)
+
+# ------------------------------------------------------------------------------------ #
+#                                    Coding Agent                                      #
+# ------------------------------------------------------------------------------------ #
+
+agent-build:
+	docker buildx build --platform "$(CODING_AGENT_DOCKER_PLATFORM)" -f "$(CODING_AGENT_DOCKERFILE)" -t "$(CODING_AGENT_IMAGE)" .
+
+agent-push: gcp-docker-auth
+	@REGISTRY_HOST="$$(echo "$(CODING_AGENT_IMAGE)" | cut -d/ -f1)"; \
+	$(GCLOUD) auth print-access-token | docker login -u oauth2accesstoken --password-stdin "https://$$REGISTRY_HOST"
+	@CLOUDSDK_CONFIG=$(GCLOUD_CONFIG_ABS) docker push "$(CODING_AGENT_IMAGE)"
+
+agent-deploy: gke-auth
+	@echo "Deleting any existing coding-agent jobs..."
+	@$(KUBECTL) delete job -l app=coding-agent --ignore-not-found 2>/dev/null || true
+	@$(KUBECTL) delete job coding-agent --ignore-not-found 2>/dev/null || true
+	@echo "Deploying coding-agent..."
+	@$(KUBECTL) apply -f "$(CODING_AGENT_MANIFEST)"
+	@echo "Waiting for pod to start..."
+	@$(KUBECTL) wait --for=condition=Ready pod -l job-name=coding-agent --timeout=120s 2>/dev/null || true
+	@echo "Streaming logs (Ctrl-C to stop watching)..."
+	@$(KUBECTL) logs -f job/coding-agent
+
+agent-logs: gke-auth
+	@$(KUBECTL) logs -f job/coding-agent 2>/dev/null || ( \
+		echo "No running job found. Showing recent pods:"; \
+		$(KUBECTL) get pods -l app=coding-agent --sort-by=.metadata.creationTimestamp; \
 	)
 
 # ------------------------------------------------------------------------------------ #

@@ -1,8 +1,10 @@
 # sp26_gke/sandbox/gke_runner.py
-from kubernetes import client, config
-from kubernetes.client.rest import ApiException
+import base64
 import time
 import uuid
+
+from kubernetes import client, config  # type: ignore[import-untyped]
+from kubernetes.client.rest import ApiException  # type: ignore[import-untyped]
 
 config.load_kube_config(config_file="/kubeconfig/config")
 
@@ -15,7 +17,7 @@ def run_in_sandbox():
     with open("/workspace/buggy_script.py") as f:
         code = f.read()
 
-    job_name = f"coding-agent"
+    job_name = "coding-agent"
     job_name = f"coding-agent-{str(uuid.uuid4())[:8]}"
 
     job_manifest = {
@@ -34,26 +36,22 @@ def run_in_sandbox():
                             "key": "sandbox.gke.io/runtime",
                             "operator": "Equal",
                             "value": "gvisor",
-                            "effect": "NoSchedule"
+                            "effect": "NoSchedule",
                         }
                     ],
                     "containers": [
                         {
                             "name": "agent",
-                            "image": "us-central1-docker.pkg.dev/cogent-nimbus-489503-f6/gke-workflows/coding-agent:latest",
+                            "image": "us-central1-docker.pkg.dev/intrepid-stage-489905-m7/gke-workflows/coding-agent:latest",
                             "command": [
                                 "sh",
                                 "-c",
-                                f"""
-                            cat << 'EOF' > /workspace/buggy_script.py
-                            {code}
-                            EOF
-
-                            cp /app/sp26_gke/tests/test_buggy_script.py /workspace/
-
-                            cd /workspace
-                            python -u test_buggy_script.py
-                            """
+                                (
+                                    f"echo {base64.b64encode(code.encode()).decode()} | base64 -d > /workspace/buggy_script.py && "
+                                    "cp /app/sp26_gke/tests/test_buggy_script.py /workspace/ && "
+                                    "cd /workspace && "
+                                    "python -u test_buggy_script.py"
+                                ),
                             ],
                             "env": [
                                 {
@@ -61,9 +59,9 @@ def run_in_sandbox():
                                     "valueFrom": {
                                         "secretKeyRef": {
                                             "name": "google-api-key",
-                                            "key": "GOOGLE_API_KEY"
+                                            "key": "GOOGLE_API_KEY",
                                         }
-                                    }
+                                    },
                                 }
                             ],
                             "securityContext": {
@@ -75,30 +73,19 @@ def run_in_sandbox():
                             },
                             "resources": {"limits": {"cpu": "1", "memory": "512Mi"}},
                             "volumeMounts": [
-                                {
-                                    "name": "workspace",
-                                    "mountPath": "/workspace"
-                                },
+                                {"name": "workspace", "mountPath": "/workspace"},
                                 {
                                     "name": "kubeconfig",
                                     "mountPath": "/kubeconfig",
-                                    "readOnly": True
-                                }
+                                    "readOnly": True,
+                                },
                             ],
                         }
                     ],
                     "volumes": [
-    {
-        "name": "workspace",
-        "emptyDir": {}
-    },
-    {
-        "name": "kubeconfig",
-        "configMap": {
-            "name": "kubeconfig-cm"
-        }
-    }
-],
+                        {"name": "workspace", "emptyDir": {}},
+                        {"name": "kubeconfig", "configMap": {"name": "kubeconfig-cm"}},
+                    ],
                 }
             },
         },
@@ -113,21 +100,27 @@ def run_in_sandbox():
     # Wait for completion
     while True:
         job_status = batch_v1.read_namespaced_job_status(job_name, namespace="default")
-        if job_status.status.succeeded == 1 or (job_status.status.failed and job_status.status.failed > 0):
+        if job_status.status.succeeded == 1 or (
+            job_status.status.failed and job_status.status.failed > 0
+        ):
             break
         time.sleep(1)
 
     # Fetch logs from pods
-    pod_list = core_v1.list_namespaced_pod(namespace="default", label_selector=f"job-name={job_name}")
+    pod_list = core_v1.list_namespaced_pod(
+        namespace="default", label_selector=f"job-name={job_name}"
+    )
     logs = ""
     for pod in pod_list.items:
-        logs += core_v1.read_namespaced_pod_log(name=pod.metadata.name, namespace="default")
+        logs += core_v1.read_namespaced_pod_log(
+            name=pod.metadata.name, namespace="default"
+        )
 
     # Delete Job and associated pods
     batch_v1.delete_namespaced_job(
         name=job_name,
         namespace="default",
-        body=client.V1DeleteOptions(propagation_policy="Foreground")
+        body=client.V1DeleteOptions(propagation_policy="Foreground"),
     )
     print(logs)
     return logs

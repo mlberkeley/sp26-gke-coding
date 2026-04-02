@@ -57,7 +57,7 @@ KUBECTL := CLOUDSDK_CONFIG=$(GCLOUD_CONFIG_ABS) pixi run kubectl
 	gcp-auth gcp-project gcp-adc-quota gcp-enable-services gcp-kms-bootstrap gcp-init gcp-docker-auth gcp-artifact-registry-repo \
 	gcp-admin-auth gcp-admin-project gcp-admin-kms-create-keyring gcp-admin-kms-create-key gcp-admin-kms-grant-user gcp-admin-kms-setup \
 	gke-auth gke-namespace gke-dummy-build gke-dummy-push gke-dummy-run-once gke-dummy-schedule gke-dummy-delete gke-dummy-logs \
-	agent-build agent-push agent-deploy agent-logs agent-ui \
+	agent-build agent-push agent-deploy agent-logs agent-run \
 	logout
 
 # ------------------------------------------------------------------------------------ #
@@ -290,8 +290,8 @@ agent-logs: gke-auth
 		$(KUBECTL) get pods -l app=coding-agent --sort-by=.metadata.creationTimestamp; \
 	)
 
-agent-ui:
-	pixi run streamlit run ui/app.py
+agent-run:
+	pixi run python run_agent.py $(FILE)
 
 # ------------------------------------------------------------------------------------ #
 #                                        Session                                       #

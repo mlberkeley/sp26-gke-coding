@@ -24,9 +24,6 @@ langchain-google-genai = ">=2.0.10,<5"
 langgraph = ">=0.2.0"
 kubernetes = ">=28.1.0"
 
-[feature.py_web.dependencies]
-streamlit = ">=1.31.0"
-
 [feature.py_utilities.dependencies]
 typer = "*"
 colorama = "*"
@@ -98,7 +95,6 @@ default = { features = [
   "py_dev",
   "py_test",
   "py_lint",
-  "py_web",
 ] }
 lint = { features = ["py_lint"], no-default-feature = true }
 infra = { features = ["infra"], no-default-feature = true }

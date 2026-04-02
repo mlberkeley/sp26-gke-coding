@@ -57,7 +57,7 @@ KUBECTL := CLOUDSDK_CONFIG=$(GCLOUD_CONFIG_ABS) pixi run kubectl
 	gcp-auth gcp-project gcp-adc-quota gcp-enable-services gcp-kms-bootstrap gcp-init gcp-docker-auth gcp-artifact-registry-repo \
 	gcp-admin-auth gcp-admin-project gcp-admin-kms-create-keyring gcp-admin-kms-create-key gcp-admin-kms-grant-user gcp-admin-kms-setup \
 	gke-auth gke-namespace gke-dummy-build gke-dummy-push gke-dummy-run-once gke-dummy-schedule gke-dummy-delete gke-dummy-logs \
-	agent-build agent-push agent-deploy agent-logs \
+	agent-build agent-push agent-deploy agent-logs agent-ui \
 	logout
 
 # ------------------------------------------------------------------------------------ #
@@ -266,7 +266,7 @@ gke-dummy-logs: gke-auth
 # ------------------------------------------------------------------------------------ #
 
 agent-build:
-	docker buildx build --platform "$(CODING_AGENT_DOCKER_PLATFORM)" -f "$(CODING_AGENT_DOCKERFILE)" -t "$(CODING_AGENT_IMAGE)" .
+	docker build --platform "$(CODING_AGENT_DOCKER_PLATFORM)" -f "$(CODING_AGENT_DOCKERFILE)" -t "$(CODING_AGENT_IMAGE)" .
 
 agent-push: gcp-docker-auth
 	@REGISTRY_HOST="$$(echo "$(CODING_AGENT_IMAGE)" | cut -d/ -f1)"; \
@@ -289,6 +289,9 @@ agent-logs: gke-auth
 		echo "No running job found. Showing recent pods:"; \
 		$(KUBECTL) get pods -l app=coding-agent --sort-by=.metadata.creationTimestamp; \
 	)
+
+agent-ui:
+	pixi run streamlit run ui/app.py
 
 # ------------------------------------------------------------------------------------ #
 #                                        Session                                       #

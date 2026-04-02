@@ -1,4 +1,4 @@
-from sp26_gke.workflows.gke_dummy_job import run
+from sp26_gke.workflows.gke_dummy_job import run  # type: ignore[import-not-found]
 
 
 def test_gke_dummy_job_success(monkeypatch, capsys) -> None:

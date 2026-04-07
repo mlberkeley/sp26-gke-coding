@@ -7,21 +7,13 @@ spec:
   ttlSecondsAfterFinished: 300
   template:
     spec:
-      runtimeClassName: gvisor
       restartPolicy: Never
       containers:
         - name: agent
           image: us-central1-docker.pkg.dev/intrepid-stage-489905-m7/gke-workflows/coding-agent:latest
-
           command:
-            - sh
-            - -c
-            - |
-              mkdir -p /workspace
-              cp /app/sp26_gke/tests/buggy_script.py /workspace/
-              cp /app/sp26_gke/tests/test_buggy_script.py /workspace/
-              python /app/sp26_gke/workflows/gke_agent_job.py
-
+            - python3
+            - /app/sp26_gke/workflows/orchestrator_job.py
           env:
             - name: GOOGLE_API_KEY
               valueFrom:
@@ -30,7 +22,6 @@ spec:
                   key: GOOGLE_API_KEY
             - name: KUBECONFIG
               value: /kubeconfig/config
-
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
@@ -38,22 +29,21 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
-
           resources:
             limits:
-              cpu: "1"
+              cpu: "500m"
               memory: "512Mi"
-
           volumeMounts:
-            - name: workspace
-              mountPath: /workspace
+            - name: input
+              mountPath: /input
+              readOnly: true
             - name: kubeconfig
               mountPath: /kubeconfig
               readOnly: true
-
       volumes:
-        - name: workspace
-          emptyDir: {}
+        - name: input
+          configMap:
+            name: user-code # must be created before applying this Job
         - name: kubeconfig
           configMap:
             name: kubeconfig-cm

@@ -66,6 +66,15 @@ def submit(code: str) -> tuple[str, str]:
                             ],
                             "env": [
                                 {"name": "KUBECONFIG", "value": "/kubeconfig/config"},
+                                {
+                                    "name": "GOOGLE_API_KEY",
+                                    "valueFrom": {
+                                        "secretKeyRef": {
+                                            "name": "google-api-key",
+                                            "key": "GOOGLE_API_KEY",
+                                        }
+                                    },
+                                },
                             ],
                             "securityContext": {
                                 "runAsNonRoot": True,
@@ -76,7 +85,6 @@ def submit(code: str) -> tuple[str, str]:
                             },
                             "resources": {"limits": {"cpu": "500m", "memory": "512Mi"}},
                             "volumeMounts": [
-                                {"name": "workspace", "mountPath": "/workspace"},
                                 {
                                     "name": "kubeconfig",
                                     "mountPath": "/kubeconfig",
@@ -91,7 +99,6 @@ def submit(code: str) -> tuple[str, str]:
                         }
                     ],
                     "volumes": [
-                        {"name": "workspace", "emptyDir": {}},
                         {"name": "kubeconfig", "configMap": {"name": "kubeconfig-cm"}},
                         {"name": "user-code", "configMap": {"name": cm_name}},
                     ],

@@ -61,25 +61,10 @@ def submit(code: str) -> tuple[str, str]:
                             "name": "agent",
                             "image": IMAGE,
                             "command": [
-                                "sh",
-                                "-c",
-                                (
-                                    "mkdir -p /workspace && "
-                                    "cp /input/buggy_script.py /workspace/ && "
-                                    "cp /app/sp26_gke/tests/test_buggy_script.py /workspace/ && "
-                                    "python /app/sp26_gke/workflows/gke_agent_job.py"
-                                ),
+                                "python",
+                                "/app/sp26_gke/workflows/orchestrator_job.py",
                             ],
                             "env": [
-                                {
-                                    "name": "GOOGLE_API_KEY",
-                                    "valueFrom": {
-                                        "secretKeyRef": {
-                                            "name": "google-api-key",
-                                            "key": "GOOGLE_API_KEY",
-                                        }
-                                    },
-                                },
                                 {"name": "KUBECONFIG", "value": "/kubeconfig/config"},
                             ],
                             "securityContext": {
@@ -89,7 +74,7 @@ def submit(code: str) -> tuple[str, str]:
                                 "readOnlyRootFilesystem": True,
                                 "capabilities": {"drop": ["ALL"]},
                             },
-                            "resources": {"limits": {"cpu": "1", "memory": "512Mi"}},
+                            "resources": {"limits": {"cpu": "500m", "memory": "512Mi"}},
                             "volumeMounts": [
                                 {"name": "workspace", "mountPath": "/workspace"},
                                 {

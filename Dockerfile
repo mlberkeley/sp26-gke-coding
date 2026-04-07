@@ -7,8 +7,8 @@ COPY sp26_gke/ /app/sp26_gke/
 
 # Install dependencies
 RUN pip install --upgrade pip
-RUN pip install langchain langchain_google_genai
-RUN pip install kubernetes
+RUN pip install "langchain==0.3.27" "langchain_google_genai==2.0.10"
+RUN pip install "kubernetes==35.0.0"
 
 
 ENV PYTHONPATH=/app

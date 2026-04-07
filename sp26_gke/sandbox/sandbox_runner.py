@@ -30,7 +30,7 @@ def run_in_sandbox():
     print("[K8s]   root fs:       read-only")
     print("[K8s]   capabilities:  ALL dropped")
     print("[K8s]   priv escalation: disabled")
-    print("[K8s]   cpu limit:     1 core")
+    print("[K8s]   cpu limit:     500m")
     print("[K8s]   memory limit:  512Mi")
 
     job_manifest = {
@@ -84,7 +84,7 @@ def run_in_sandbox():
                                 "readOnlyRootFilesystem": True,
                                 "capabilities": {"drop": ["ALL"]},
                             },
-                            "resources": {"limits": {"cpu": "1", "memory": "512Mi"}},
+                            "resources": {"limits": {"cpu": "500m", "memory": "512Mi"}},
                             "volumeMounts": [
                                 {"name": "workspace", "mountPath": "/workspace"},
                                 {

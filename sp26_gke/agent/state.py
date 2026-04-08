@@ -1,3 +1,5 @@
+"""Agent state definition for the LangGraph workflow."""
+
 from typing import Annotated, TypedDict
 
 from langchain_core.messages import BaseMessage

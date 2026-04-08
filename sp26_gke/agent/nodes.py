@@ -4,9 +4,8 @@ from langchain_core.messages import AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END
 
+from sp26_gke.agent.state import AgentState
 from sp26_gke.sandbox.sandbox_runner import run_in_sandbox
-
-from .state import AgentState
 
 test_path = Path("/workspace/test_buggy_script.py")
 buggy_file = Path("/workspace/buggy_script.py")
@@ -64,8 +63,6 @@ def apply_fix_node(state: AgentState):
             if isinstance(block, dict) and "text" in block:
                 suggestion = block["text"]
                 break
-
-    # print(f"DEBUG: Extracted suggestion: {repr(suggestion)}")
 
     if not suggestion:
         print("WARNING: Suggestion is empty!")

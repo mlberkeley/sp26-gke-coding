@@ -1,4 +1,4 @@
-"""Fixer sub-agent: generates corrected code and verifies it in its own sandbox."""
+"""Fixer sub-agent: generates corrected code and verifies it in a sandbox."""
 
 from pathlib import Path
 

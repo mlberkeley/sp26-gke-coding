@@ -387,5 +387,6 @@ secrets/.secrets.auto.tfvars.json
 secrets/.sops.yaml
 .gcloud/
 .gcloud-admin/
+CLAUDE.md
 
 # --------------------------------------------------------------------------------------

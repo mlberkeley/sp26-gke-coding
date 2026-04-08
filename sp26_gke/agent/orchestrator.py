@@ -1,9 +1,9 @@
 """Orchestrator: LLM-driven tool-use loop for dynamic sub-agent coordination.
 
-The orchestrator accumulates a full history of every action taken and result
-seen, then asks the LLM what to do next.  It can invoke any sub-agent any
-number of times in any order and decides autonomously when to accept a fix or
-give up — based on accumulated evidence, not a fixed retry counter.
+Accumulates a full history of every action taken and result seen, then asks
+the LLM what to do next.  Sub-agents can be invoked any number of times in
+any order; the orchestrator decides autonomously when to accept a fix or give
+up based on accumulated evidence rather than a fixed retry counter.
 
 Inter-agent communication: ConfigMaps carry input into each GKE Job; the
 orchestrator extracts results from pod logs and keeps them as typed Python

@@ -4,12 +4,56 @@ metadata:
   name: coding-agent
 spec:
   backoffLimit: 0
+  ttlSecondsAfterFinished: 300
   template:
     spec:
+      runtimeClassName: gvisor
+      restartPolicy: Never
       containers:
         - name: agent
           image: us-central1-docker.pkg.dev/cogent-nimbus-489503-f6/gke-workflows/coding-agent:latest
+
+          command:
+          - sh
+          - -c
+          - |
+            mkdir -p /workspace
+            cp /app/sp26_gke/tests/buggy_script.py /workspace/
+            cp /app/sp26_gke/tests/test_buggy_script.py /workspace/
+            python /app/sp26_gke/workflows/gke_agent_job.py
+
           env:
             - name: GOOGLE_API_KEY
-              value: AIzaSyC6_7_-NjjxRO8LK5HY186KbmiJiyIUJXE
-      restartPolicy: Never
+              valueFrom:
+                secretKeyRef:
+                  name: google-api-key
+                  key: GOOGLE_API_KEY
+            - name: KUBECONFIG
+              value: /kubeconfig/config
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+
+          volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: kubeconfig
+            mountPath: /kubeconfig
+            readOnly: true
+
+      volumes:
+        - name: workspace
+          emptyDir: {}
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig-cm

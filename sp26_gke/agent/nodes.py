@@ -1,16 +1,14 @@
-import time
-import uuid
 from pathlib import Path
 
-from kubernetes import client, config  # type: ignore[import-untyped]
 from langchain_core.messages import AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END
-from sp26_gke.sandbox.sandbox_runner import run_in_sandbox
-from .state import AgentState
 
-test_path = Path(__file__).parent / "workspace" / "test_buggy_script.py"
-buggy_file = Path(__file__).parent / "workspace" / "buggy_script.py"
+from sp26_gke.agent.state import AgentState
+from sp26_gke.sandbox.sandbox_runner import run_in_sandbox
+
+test_path = Path("/workspace/test_buggy_script.py")
+buggy_file = Path("/workspace/buggy_script.py")
 
 llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0)
 resp = llm.invoke("print('hello world')")
@@ -78,7 +76,7 @@ def apply_fix_node(state: AgentState):
     with open(buggy_file, "w") as f:
         f.write(clean_code)
 
-    with open(buggy_file, "r") as f:
+    with open(buggy_file) as f:
         print("===== FIXED CODE =====")
         print(f.read())
         print("======================")

@@ -1,7 +1,12 @@
 from langgraph.graph import START, StateGraph
 
-from .nodes import apply_fix_node, run_tests_node, should_continue, suggest_fix_node
-from .state import AgentState
+from sp26_gke.agent.nodes import (
+    apply_fix_node,
+    run_tests_node,
+    should_continue,
+    suggest_fix_node,
+)
+from sp26_gke.agent.state import AgentState
 
 
 def build_graph():

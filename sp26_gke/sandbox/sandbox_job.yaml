@@ -8,6 +8,6 @@ spec:
       runtimeClassName: gvisor
       containers:
         - name: sandbox
-          image: gcr.io/cogent-nimbus-489503-f6/sandbox:latest
+          image: us-central1-docker.pkg.dev/intrepid-stage-489905-m7/gke-workflows/coding-agent:latest
           command: ["python3", "/app/sp26_gke/workflows/gke_agent_job.py"]
       restartPolicy: Never

@@ -1,0 +1,11 @@
+problem_id,status,attempts,elapsed_s,iron_curtain_rejections
+bitcount,passed,1,21.7,0
+gcd,passed,1,10.2,0
+find_first_in_sorted,passed,1,237.8,0
+flatten,passed,1,7.8,0
+hanoi,passed,2,236.5,0
+kheapsort,passed,1,14.3,0
+lcs_length,passed,1,225.9,0
+mergesort,passed,1,222.2,0
+sqrt,failed,3,389.5,0
+next_palindrome,passed,1,34.0,0

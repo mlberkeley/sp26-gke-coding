@@ -10,4 +10,5 @@ RUN pip install --upgrade pip
 RUN pip install langchain langchain_google_genai langgraph kubernetes
 
 ENV PYTHONPATH=/app
-CMD ["python3", "/app/sp26_gke/workflows/gke_agent_job.py"]
+CMD ["python3", "/app/sp26_gke/workflows/orchestrator_job.py"]
+

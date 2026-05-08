@@ -1,0 +1,72 @@
+[
+  {
+    "problem_id": "bitcount",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 21.7,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "gcd",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 10.2,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "find_first_in_sorted",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 237.8,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "flatten",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 7.8,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "hanoi",
+    "status": "passed",
+    "attempts": 2,
+    "elapsed_s": 236.5,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "kheapsort",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 14.3,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "lcs_length",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 225.9,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "mergesort",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 222.2,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "sqrt",
+    "status": "failed",
+    "attempts": 3,
+    "elapsed_s": 389.5,
+    "iron_curtain_rejections": 0
+  },
+  {
+    "problem_id": "next_palindrome",
+    "status": "passed",
+    "attempts": 1,
+    "elapsed_s": 34.0,
+    "iron_curtain_rejections": 0
+  }
+]

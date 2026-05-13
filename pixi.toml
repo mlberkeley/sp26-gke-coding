@@ -14,6 +14,7 @@ geodata-preprocess = "python -m sp26_gke.geodata.cli preprocess"
 geodata-plot = "python sp26_gke/plotting/geodata/generate_figures.py"
 gke-dummy-job = "python -m sp26_gke.workflows.gke_dummy_job"
 run-agent = "python run_agent.py"
+demo = "streamlit run ui/app.py"
 
 [dependencies]
 python = "3.11.*"
@@ -24,6 +25,7 @@ langchain-google-genai = ">=2.0.10,<5"
 [pypi-dependencies]
 langgraph = ">=0.2.0"
 kubernetes = ">=28.1.0"
+streamlit = ">=1.32"
 
 [feature.py_utilities.dependencies]
 typer = "*"

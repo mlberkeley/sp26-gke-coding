@@ -1,0 +1,137 @@
+{
+  "summary": {
+    "total": 21,
+    "passed": 20,
+    "failed": 0,
+    "error": 1,
+    "pass_rate": 95.23809523809523
+  },
+  "results": [
+    {
+      "program": "bitcount",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "bucketsort",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "flatten",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "gcd",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "get_factors",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "hanoi",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "is_valid_parenthesization",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "levenshtein",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "longest_common_subsequence",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "longest_increasing_subsequence",
+      "status": "error",
+      "steps": 0,
+      "error": "fetch failed"
+    },
+    {
+      "program": "max_sublist_sum",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "mergesort",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "next_palindrome",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "next_permutation",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "pascal",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "powerset",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "rpn_eval",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "shunting_yard",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "sieve",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "sqrt",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    },
+    {
+      "program": "wrap",
+      "status": "passed",
+      "steps": 4,
+      "error": ""
+    }
+  ]
+}

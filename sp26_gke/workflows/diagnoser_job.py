@@ -1,8 +1,4 @@
-"""Diagnoser sub-agent: reads buggy code and classifies the bug type.
-
-Optionally reads failure_context.txt from a previous attempt so it can
-avoid repeating an approach that already failed.
-"""
+"""Diagnoser sub-agent: reads buggy code and classifies the bug type."""
 
 from pathlib import Path
 

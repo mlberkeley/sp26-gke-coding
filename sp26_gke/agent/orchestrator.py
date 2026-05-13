@@ -25,6 +25,7 @@ from sp26_gke.agent.job_runner import (
     spawn_job,
     wait_for_logs,
 )
+from sp26_gke.agent.policy_guard import PolicyGuard
 
 _KUBECONFIG = "/kubeconfig/config"
 _MAX_STEPS = 10  # hard ceiling on total tool calls; prevents runaway cost
@@ -97,10 +98,13 @@ def _run_diagnoser(code: str, failure_context: str | None) -> DiagnoseResult:
     return DiagnoseResult(diagnosis=diagnosis)
 
 
-def _run_fixer(code: str, diagnosis: str) -> FixResult:
+def _run_fixer(code: str, diagnosis: str, test_script: str | None = None) -> FixResult:
+    input_data: dict[str, str] = {"buggy_script.py": code, "diagnosis.txt": diagnosis}
+    if test_script:
+        input_data["test_script.py"] = test_script
     job, cm = spawn_job(
         "fixer",
-        {"buggy_script.py": code, "diagnosis.txt": diagnosis},
+        input_data,
         _FIXER_CMD,
         needs_kubeconfig=True,
         needs_google_api_key=True,
@@ -120,14 +124,22 @@ def _run_fixer(code: str, diagnosis: str) -> FixResult:
     )
 
 
-def _run_reviewer(original: str, fixed: str, fixer_sandbox_result: str) -> ReviewResult:
+def _run_reviewer(
+    original: str,
+    fixed: str,
+    fixer_sandbox_result: str,
+    test_script: str | None = None,
+) -> ReviewResult:
+    input_data: dict[str, str] = {
+        "original.py": original,
+        "fixed.py": fixed,
+        "fixer_sandbox_result.txt": fixer_sandbox_result,
+    }
+    if test_script:
+        input_data["test_script.py"] = test_script
     job, cm = spawn_job(
         "reviewer",
-        {
-            "original.py": original,
-            "fixed.py": fixed,
-            "fixer_sandbox_result.txt": fixer_sandbox_result,
-        },
+        input_data,
         _REVIEWER_CMD,
         needs_kubeconfig=True,
         needs_google_api_key=True,
@@ -279,18 +291,25 @@ REASON: <one sentence>"""
 
 
 def run_orchestrator() -> None:
-    """
-    Run the dynamic fix loop.
-
-    The orchestrator LLM reads the full history of all sub-agent results at each step
-    and decides which sub-agent to spawn next.  It controls ordering, repetition, and
-    termination — there is no fixed attempt counter.  A hard step ceiling of _MAX_STEPS
-    prevents runaway cost.
-    """
     config.load_kube_config(config_file=_KUBECONFIG)
 
     original_code = Path("/input/buggy_script.py").read_text()
+    test_script_path = Path("/input/test_script.py")
+    test_script = test_script_path.read_text() if test_script_path.exists() else None
+    if test_script:
+        print("[Orchestrator] Custom test script loaded from /input/test_script.py")
+
     llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0)
+    guard = PolicyGuard()
+
+    code_scan = guard.check_code(original_code)
+    if not code_scan.allowed:
+        print(f"[PolicyGuard] BLOCKED — {code_scan.rule}: {code_scan.reason}")
+        print("\n--- AGENT STATUS: FAILED ---")
+        print("--- FINAL CODE START ---")
+        print(original_code)
+        print("--- FINAL CODE END ---")
+        return
 
     history: list[HistoryEntry] = []
     fixed_code = original_code
@@ -300,6 +319,12 @@ def run_orchestrator() -> None:
         step += 1
         action, reason = _next_action(llm, original_code, history, _MAX_STEPS - step)
         print(f"\n[Orchestrator] Step {step}: {action.upper()} — {reason}")
+
+        decision = guard.check(action, reason, step, history)
+        if not decision.allowed:
+            print(f"[PolicyGuard] DENIED: {action.upper()} — rule: {decision.rule}")
+            print("[PolicyGuard] Forcing give_up for safety.")
+            break
 
         if action == "accept":
             print("\n--- AGENT STATUS: PASSED ---")
@@ -324,7 +349,7 @@ def run_orchestrator() -> None:
                     "[Orchestrator] LLM requested fix without a diagnosis — stopping."
                 )
                 break
-            fix = _run_fixer(original_code, latest_diagnosis)
+            fix = _run_fixer(original_code, latest_diagnosis, test_script)
             history.append(HistoryEntry(step=step, action="fix", result=fix))
             if fix.fixed_code:
                 fixed_code = fix.fixed_code
@@ -338,7 +363,10 @@ def run_orchestrator() -> None:
                 print("[Orchestrator] LLM requested review without a fix — stopping.")
                 break
             review = _run_reviewer(
-                original_code, latest_fix.fixed_code, latest_fix.sandbox_result
+                original_code,
+                latest_fix.fixed_code,
+                latest_fix.sandbox_result,
+                test_script,
             )
             history.append(HistoryEntry(step=step, action="review", result=review))
             print(

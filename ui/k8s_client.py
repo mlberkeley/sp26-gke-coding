@@ -95,12 +95,17 @@ def submit(code: str) -> tuple[str, str]:
                                     "mountPath": "/input",
                                     "readOnly": True,
                                 },
+                                {
+                                    "name": "workspace",
+                                    "mountPath": "/workspace",
+                                },
                             ],
                         }
                     ],
                     "volumes": [
                         {"name": "kubeconfig", "configMap": {"name": "kubeconfig-cm"}},
                         {"name": "user-code", "configMap": {"name": cm_name}},
+                        {"name": "workspace", "emptyDir": {}},
                     ],
                 }
             },

@@ -1,4 +1,3 @@
-# sp26_gke/sandbox/sandbox_runner.py
 import base64
 import time
 import uuid
@@ -20,18 +19,6 @@ def run_in_sandbox():
         code = f.read()
 
     job_name = f"sandbox-{str(uuid.uuid4())[:8]}"
-
-    print(f"[K8s] Creating sandbox Job: {job_name}")
-    print(f"[K8s]   namespace:     {NAMESPACE}")
-    print(f"[K8s]   image:         {IMAGE}")
-    print("[K8s]   runtime:       gvisor  (gVisor/runsc — kernel-level isolation)")
-    print("[K8s]   node pool:     sandbox.gke.io/runtime=gvisor")
-    print("[K8s]   uid:           1000 (non-root)")
-    print("[K8s]   root fs:       read-only")
-    print("[K8s]   capabilities:  ALL dropped")
-    print("[K8s]   priv escalation: disabled")
-    print("[K8s]   cpu limit:     500m")
-    print("[K8s]   memory limit:  512Mi")
 
     job_manifest = {
         "apiVersion": "batch/v1",
@@ -106,31 +93,20 @@ def run_in_sandbox():
 
     try:
         batch_v1.create_namespaced_job(namespace=NAMESPACE, body=job_manifest)
-        print(f"[K8s] Job {job_name} created — waiting for pod to schedule...")
     except ApiException as e:
         print(f"[K8s] ERROR creating Job {job_name}: {e}")
         return ""
 
-    # Wait for pod to appear and log scheduling info
     pod_name = None
     for _ in range(60):
         pods = core_v1.list_namespaced_pod(
             namespace=NAMESPACE, label_selector=f"job-name={job_name}"
         )
         if pods.items:
-            pod = pods.items[0]
-            pod_name = pod.metadata.name
-            node = pod.spec.node_name or "pending"
-            phase = pod.status.phase or "Pending"
-            runtime = pod.spec.runtime_class_name or "default"
-            print(f"[K8s] Pod:          {pod_name}")
-            print(f"[K8s]   node:        {node}")
-            print(f"[K8s]   phase:       {phase}")
-            print(f"[K8s]   runtimeClass:{runtime}")
+            pod_name = pods.items[0].metadata.name
             break
         time.sleep(1)
 
-    # Wait for job completion
     elapsed = 0
     while True:
         job_status = batch_v1.read_namespaced_job_status(job_name, namespace=NAMESPACE)
@@ -147,12 +123,10 @@ def run_in_sandbox():
     outcome = "succeeded" if (job_status.status.succeeded or 0) >= 1 else "failed"
     print(f"[K8s] Job {job_name} {outcome} after {elapsed}s")
 
-    # Fetch logs
     logs = ""
     if pod_name:
         try:
             logs = core_v1.read_namespaced_pod_log(name=pod_name, namespace=NAMESPACE)
-            print(f"[K8s] Fetched {len(logs)} bytes of logs from {pod_name}")
         except ApiException as e:
             print(f"[K8s] ERROR fetching logs: {e}")
     else:
@@ -164,8 +138,6 @@ def run_in_sandbox():
                 name=pod.metadata.name, namespace=NAMESPACE
             )
 
-    # Cleanup
-    print(f"[K8s] Deleting Job {job_name}...")
     batch_v1.delete_namespaced_job(
         name=job_name,
         namespace=NAMESPACE,
